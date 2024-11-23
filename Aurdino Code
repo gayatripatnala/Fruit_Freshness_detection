@@ -1,0 +1,72 @@
+#include <LiquidCrystal.h>
+
+// Pin configuration for LCD
+const int rs = 7, en = 6, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+// Pin configuration for sensors and buzzer
+const int MQ3_pin = A0; // MQ3 sensor pin
+const int MQ5_pin = A1; // MQ5 sensor pin
+const int buzzer = 8;   // Buzzer pin
+
+// Threshold values
+const int MQ3_threshold = 250; // Ethylene level in ppm
+const int MQ5_threshold = 500; // Natural gases in ppm
+
+void setup() {
+  // Initialize LCD and print welcome message
+  lcd.begin(16, 2);
+  lcd.print("IOT FRUIT FRESH");
+  lcd.setCursor(0, 1);
+  lcd.print("NESS DETECTOR");
+  delay(3000); // Display message for 3 seconds
+  
+  lcd.clear();
+  lcd.print("Initializing...");
+  delay(2000); // Initialization delay
+  
+  // Pin modes
+  pinMode(MQ3_pin, INPUT);
+  pinMode(MQ5_pin, INPUT);
+  pinMode(buzzer, OUTPUT);
+}
+
+void loop() {
+  // Read sensor values
+  int MQ3_value = analogRead(MQ3_pin);
+  int MQ5_value = analogRead(MQ5_pin);
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Ethylene: ");
+  lcd.print(MQ3_value);
+  lcd.setCursor(0, 1);
+  lcd.print("Gases: ");
+  lcd.print(MQ5_value);
+  delay(2000);
+
+  // Check MQ3 sensor (ethylene)
+  if (MQ3_value > MQ3_threshold) {
+    lcd.clear();
+    lcd.print("DON'T EAT");
+    lcd.setCursor(0, 1);
+    lcd.print("High Alcohol!");
+    digitalWrite(buzzer, HIGH);
+    delay(2000); // Warning display for 2 seconds
+    digitalWrite(buzzer, LOW);
+  }
+
+  // Check MQ5 sensor (gases)
+  if (MQ5_value > MQ5_threshold) {
+    lcd.clear();
+    lcd.print("GASES RELEASING");
+    lcd.setCursor(0, 1);
+    lcd.print("Warning!");
+    digitalWrite(buzzer, HIGH);
+    delay(2000); // Warning display for 2 seconds
+    digitalWrite(buzzer, LOW);
+  }
+
+  // Wait for next reading
+  delay(1000);
+}
